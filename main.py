@@ -33,6 +33,15 @@ app.include_router(contacts_routes.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup():
+    """
+    The startup function is called when the application starts up.
+    It's a good place to initialize things that are used by the app, such as:
+    - Connecting to databases or other external services.
+    - Loading configuration from files or environment variables.
+    - Creating background tasks.
+
+    :return: A list of futures, so we need to wait for them
+    """
     r = await redis.Redis(
         host=config.REDIS_DOMAIN,
         port=config.REDIS_PORT,
@@ -44,11 +53,27 @@ async def startup():
 
 @app.get('/')
 def index():
+    """
+    The index function is a Flask view function that returns a dictionary
+    containing the message 'Welcome to Contacts Application'. The index function
+    is mapped to the '/' URL by default. This means that when you visit this URL,
+    the index function will be called and its return value will be used as the response.
+
+    :return: A dictionary with a message
+    """
     return {'message': 'Welcome to Contacts Application'}
 
 
 @app.get("/api/healthchecker")
 async def healthchecker(db: asyncio.AsyncSession = fastapi.Depends(db.get_db)):
+    """
+    The healthchecker function is a simple function that checks the health of the database.
+    It does this by executing a SQL query to check if it can connect to the database and retrieve data from it.
+    If there is an error connecting, or retrieving data, then we raise an HTTPException with status code 500.
+
+    :param db: asyncio.AsyncSession: Get the database session from the dependency
+    :return: A dictionary with a message
+    """
     try:
         result = await db.execute(sqa.text("SELECT 1"))
         result = result.fetchone()
