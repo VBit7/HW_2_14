@@ -34,4 +34,10 @@ sessionmanager = DatabaseSessionManager(config.DB_URL)
 
 async def get_db():
     async with sessionmanager.session() as session:
-        yield session
+        try:
+            yield session
+        except Exception as err:
+            await session.rollback()
+            raise
+        finally:
+            await session.close()
