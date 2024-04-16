@@ -1,6 +1,5 @@
 import os
 
-# import fastapi
 import redis.asyncio as redis
 import uvicorn
 from pathlib import Path
@@ -9,7 +8,6 @@ import fastapi.middleware.cors as cors
 import sqlalchemy as sqa
 import sqlalchemy.ext.asyncio as asyncio
 from fastapi import FastAPI, Depends, HTTPException
-# import fastapi_limiter
 from fastapi_limiter import FastAPILimiter
 
 import src.db as db
@@ -18,14 +16,7 @@ from src.auth import routes as auth_routes
 from src.users import routes as users_routes
 from src.config import config
 
-# from slowapi import Limiter
-# from slowapi.util import get_remote_address
-# from slowapi.errors import RateLimitExceeded
-# from fastapi import FastAPI, Request
-# from fastapi.responses import JSONResponse
 
-
-# limiter = Limiter(key_func=get_remote_address)
 app = FastAPI()
 
 origins = ["http://localhost:8000"]
@@ -63,14 +54,6 @@ async def startup():
         password=config.REDIS_PASSWORD
     )
     await FastAPILimiter.init(r)
-
-
-# @app.exception_handler(RateLimitExceeded)
-# async def rate_limit_exceeded_handler(request: fastapi.Request, exc: fastapi.RateLimitExceeded):
-#     return JSONResponse(
-#         status_code=429,
-#         content={"detail": "Too many requests"},
-#     )
 
 
 @app.get('/')
