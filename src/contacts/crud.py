@@ -27,9 +27,7 @@ async def get_contacts(
     stmt = select(models.Contact).filter_by(user=user).offset(offset).limit(limit)
     contacts = await db.execute(stmt)
     return contacts.scalars().all()
-    # result = await db.execute(stmt)
-    # contacts = await result.scalars().fetchall()
-    # return contacts
+
 
 async def get_contact(
         contact_id: int,

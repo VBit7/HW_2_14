@@ -1,4 +1,4 @@
-from pydantic import BaseModel, EmailStr, Field
+from pydantic import BaseModel, EmailStr, Field, ConfigDict
 import src.auth.models as auth_models
 
 
@@ -12,11 +12,12 @@ class UserResponse(BaseModel):
     id: int = 1
     username: str
     email: EmailStr
-    avatar: str
+    avatar: str | None
     role: auth_models.Role
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)  # noqa
+    # class Config:
+    #     from_attributes = True
 
 
 class TokenSchema(BaseModel):

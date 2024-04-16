@@ -1,11 +1,16 @@
-import fastapi
+import os
+
+# import fastapi
 import redis.asyncio as redis
 import uvicorn
+from pathlib import Path
 
 import fastapi.middleware.cors as cors
 import sqlalchemy as sqa
 import sqlalchemy.ext.asyncio as asyncio
-import fastapi_limiter
+from fastapi import FastAPI, Depends, HTTPException
+# import fastapi_limiter
+from fastapi_limiter import FastAPILimiter
 
 import src.db as db
 from src.contacts import routes as contacts_routes
@@ -13,15 +18,15 @@ from src.auth import routes as auth_routes
 from src.users import routes as users_routes
 from src.config import config
 
-from slowapi import Limiter
-from slowapi.util import get_remote_address
-from slowapi.errors import RateLimitExceeded
+# from slowapi import Limiter
+# from slowapi.util import get_remote_address
+# from slowapi.errors import RateLimitExceeded
 # from fastapi import FastAPI, Request
-from fastapi.responses import JSONResponse
+# from fastapi.responses import JSONResponse
 
 
 # limiter = Limiter(key_func=get_remote_address)
-app = fastapi.FastAPI()
+app = FastAPI()
 
 origins = ["http://localhost:8000"]
 
@@ -32,6 +37,8 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+BASE_DIR = Path(__file__).parent
 
 app.include_router(auth_routes.router, prefix="/api")
 app.include_router(users_routes.router, prefix="/api")
@@ -55,7 +62,7 @@ async def startup():
         db=0,
         password=config.REDIS_PASSWORD
     )
-    await fastapi_limiter.FastAPILimiter.init(r)
+    await FastAPILimiter.init(r)
 
 
 # @app.exception_handler(RateLimitExceeded)
@@ -80,7 +87,7 @@ def index():
 
 
 @app.get("/api/healthchecker")
-async def healthchecker(db: asyncio.AsyncSession = fastapi.Depends(db.get_db)):
+async def healthchecker(db: asyncio.AsyncSession = Depends(db.get_db)):
     """
     The healthchecker function is a simple function that checks the health of the database.
     It does this by executing a SQL query to check if it can connect to the database and retrieve data from it.
@@ -93,14 +100,15 @@ async def healthchecker(db: asyncio.AsyncSession = fastapi.Depends(db.get_db)):
         result = await db.execute(sqa.text("SELECT 1"))
         result = result.fetchone()
         if result is None:
-            raise fastapi.HTTPException(status_code=500, detail="Database is not configured correctly")
+            raise HTTPException(status_code=500, detail="Database is not configured correctly")
         return {"message": "Welcome to FastAPI!"}
     except Exception as e:
         print(e)
-        raise fastapi.HTTPException(status_code=500, detail="Error connecting to the database")
+        raise HTTPException(status_code=500, detail="Error connecting to the database")
 
 
 if __name__ == '__main__':
     uvicorn.run(
-        'main:app', host='localhost', port=8000, reload=True
+        # 'main:app', host='localhost', port=8000, reload=True
+        "main:app", host="0.0.0.0", port=int(os.environ.get("PORT", 8000)), log_level="info"
     )
