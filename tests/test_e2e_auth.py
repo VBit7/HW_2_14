@@ -1,13 +1,13 @@
-from unittest.mock import Mock
-
 import pytest
+
+from unittest.mock import Mock
 from sqlalchemy import select
 
+from src import messages
 from src.auth.models import User
 from tests.conftest import TestingSessionLocal
-from src import messages
 
-user_data = {"username": "deadpool", "email": "deadpool@gmail.com", "password": "12345678"}
+user_data = {"username": "tester", "email": "tester@gmail.com", "password": "9876543210"}
 
 
 def test_signup(client, monkeypatch):
@@ -22,21 +22,21 @@ def test_signup(client, monkeypatch):
     assert "avatar" in data
 
 
-# def test_repeat_signup(client, monkeypatch):
-#     mock_send_email = Mock()
-#     monkeypatch.setattr("src.auth.routes.send_email", mock_send_email)
-#     response = client.post("api/auth/signup", json=user_data)
-#     assert response.status_code == 409, response.text
-#     data = response.json()
-#     assert data["detail"] == messages.ACCOUNT_EXIST
+def test_repeat_signup(client, monkeypatch):
+    mock_send_email = Mock()
+    monkeypatch.setattr("src.auth.routes.send_email", mock_send_email)
+    response = client.post("api/auth/signup", json=user_data)
+    assert response.status_code == 409, response.text
+    data = response.json()
+    assert data["detail"] == messages.ACCOUNT_EXIST
 
 
-# def test_not_confirmed_login(client):
-#     response = client.post("api/auth/login",
-#                            data={"username": user_data.get("email"), "password": user_data.get("password")})
-#     assert response.status_code == 401, response.text
-#     data = response.json()
-#     assert data["detail"] == "Email not confirmed"
+def test_not_confirmed_login(client):
+    response = client.post("api/auth/login",
+                           data={"username": user_data.get("email"), "password": user_data.get("password")})
+    assert response.status_code == 401, response.text
+    data = response.json()
+    assert data["detail"] == "Email not confirmed"
 
 
 @pytest.mark.asyncio
@@ -57,20 +57,20 @@ async def test_login(client):
     assert "token_type" in data
 
 
-# def test_wrong_password_login(client):
-#     response = client.post("api/auth/login",
-#                            data={"username": user_data.get("email"), "password": "password"})
-#     assert response.status_code == 401, response.text
-#     data = response.json()
-#     assert data["detail"] == "Invalid password"
+def test_wrong_password_login(client):
+    response = client.post("api/auth/login",
+                           data={"username": user_data.get("email"), "password": "password"})
+    assert response.status_code == 401, response.text
+    data = response.json()
+    assert data["detail"] == "Invalid password"
 
 
-# def test_wrong_email_login(client):
-#     response = client.post("api/auth/login",
-#                            data={"username": "email", "password": user_data.get("password")})
-#     assert response.status_code == 401, response.text
-#     data = response.json()
-#     assert data["detail"] == "Invalid email"
+def test_wrong_email_login(client):
+    response = client.post("api/auth/login",
+                           data={"username": "email", "password": user_data.get("password")})
+    assert response.status_code == 401, response.text
+    data = response.json()
+    assert data["detail"] == "Invalid email"
 
 
 def test_validation_error_login(client):
