@@ -38,15 +38,6 @@ app.include_router(contacts_routes.router, prefix="/api")
 
 @app.on_event("startup")
 async def startup():
-    """
-    The startup function is called when the application starts up.
-    It's a good place to initialize things that are used by the app, such as:
-    - Connecting to databases or other external services.
-    - Loading configuration from files or environment variables.
-    - Creating background tasks.
-
-    :return: A list of futures, so we need to wait for them
-    """
     r = await redis.Redis(
         host=config.REDIS_DOMAIN,
         port=config.REDIS_PORT,
