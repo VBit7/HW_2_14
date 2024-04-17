@@ -24,10 +24,6 @@ fastapi-limiter = "0.1.5"
 cloudinary = "^1.39.1"
 pytest = "^8.1.1"
 setuptools = "^69.2.0"
-#redis = "^5.0.3"
-#bcrypt = "^4.1.2"
-#passlib = "^1.7.4"
-#slowapi = "^0.1.9"
 
 
 [tool.poetry.group.dev.dependencies]
